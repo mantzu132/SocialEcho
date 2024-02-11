@@ -26,6 +26,8 @@ mongoose
   .catch((err) => console.log(err));
 
 app.use(cors());
+
+// HTTP request logger GET /home 200 - 7.765 ms
 app.use(morgan("dev"));
 
 // request parser
@@ -35,6 +37,10 @@ app.use(express.urlencoded({ extended: true }));
 // user routes
 const userRouter = require("./routes/userRouter");
 app.use("/users", userRouter);
+
+// post routes
+const postRouter = require("./routes/postRouter");
+app.use("/posts", postRouter);
 
 //body parser
 app.use(bodyParser.json());
