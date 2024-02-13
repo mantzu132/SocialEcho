@@ -2,8 +2,8 @@ const Post = require("../models/Post");
 
 function getPosts(req, res, next) {
   Post.find()
-    .then((users) => {
-      res.json("Hello world!");
+    .then((posts) => {
+      res.json(posts);
     })
     .catch((err) => next(err));
 }
