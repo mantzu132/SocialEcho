@@ -19,7 +19,7 @@ const postsSlice = createSlice({
     builder
       .addCase(
         getPostsAsync.fulfilled,
-        (state, action: PayloadAction<PostState[]>) => {
+        (_state, action: PayloadAction<PostState[]>) => {
           return action.payload;
         },
       )
