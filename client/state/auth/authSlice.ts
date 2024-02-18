@@ -55,13 +55,13 @@ const authSlice = createSlice({
         state.signInError = null;
         state.signUpError = [];
         // @ts-ignore
-        state.successMessage = "Sign up successful"; // or use action.payload for dynamic messages
+        state.successMessage = "Sign up successful";
       })
       .addCase(signUpAction.rejected, (state, action) => {
         state.successMessage = null;
         state.signInError = null;
         // @ts-ignore
-        state.signUpError = action.payload ? action.payload : []; // Assuming payload is the error message
+        state.signUpError = action.payload ? action.payload : [];
       });
   },
 });

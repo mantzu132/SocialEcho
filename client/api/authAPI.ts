@@ -8,7 +8,7 @@ export const signUp = async (formData: any) => {
       },
     });
     return { error: null, data: res.data };
-  } catch (error) {
+  } catch (error: any) {
     return {
       error: error.response.data.errors,
       data: null,
