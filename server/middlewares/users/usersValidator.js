@@ -1,16 +1,24 @@
 const { check, validationResult } = require("express-validator");
-const User = require("../../models/User");
-const { unlink } = require("fs");
-const createError = require("http-errors");
-
-// add user
+const User = require("../../models/user.model");
+const path = require("path");
+const fs = require("fs");
 
 const addUserValidator = [
   check("name")
-    .isLength({ min: 3 })
+    .isLength({ min: 1 })
     .withMessage("Name is required")
     .isAlpha("en-US", { ignore: " -" })
     .withMessage("Name must not contain anything other than alphabet")
+    .custom((value, { req }) => {
+      switch (true) {
+        case value.length === 1:
+          throw new Error("Name must be at least 2 characters long");
+        case value.length > 20:
+          throw new Error("Name cannot be more than 20 characters long");
+        default:
+          return true;
+      }
+    })
     .trim(),
   check("email")
     .isEmail()
@@ -20,20 +28,20 @@ const addUserValidator = [
       try {
         const user = await User.findOne({ email: value });
         if (user) {
-          throw new Error("Email already in use");
+          throw new Error(
+            "There is already an account associated with this email address"
+          );
         }
       } catch (err) {
-        throw new Error(err.message);
+        throw err;
       }
     }),
   check(
     "password",
-    "Please enter a password with 6 or more characters",
+    "Please enter a password with 6 or more characters"
   ).isLength({ min: 6 }),
-
   check("role").default("general"),
 ];
-//isStrongPassword() needs to be added later
 
 const addUserValidatorHandler = (req, res, next) => {
   const errors = validationResult(req);
@@ -42,21 +50,22 @@ const addUserValidatorHandler = (req, res, next) => {
   if (Object.keys(mappedErrors).length === 0) {
     next();
   } else {
-    // // remove uploaded file
-    // if (req.files.length > 0) {
-    //   const { filename } = req.files[0];
-    //   unlink.join(
-    //     __dirname,
-    //     `../../public/uploads/avatars/${filename}`,
-    //     (err) => {
-    //       if (err) {
-    //         console.log(err);
-    //       }
-    //     }
-    //   );
-    // }
-    // return errors
-    res.status(400).json({ errors: mappedErrors });
+    if (req.files && req.files.length > 0) {
+      const { filename } = req.files[0];
+      const filePath = path.join(
+        __dirname,
+        `../../assets/userAvatars/${filename}`
+      );
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error(err);
+        }
+        console.log(`${filePath} was deleted`);
+      });
+    }
+    res
+      .status(400)
+      .json({ errors: Object.values(mappedErrors).map((error) => error.msg) });
   }
 };
 

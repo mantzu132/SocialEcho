@@ -34,17 +34,17 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// user routes
-const userRouter = require("./routes/userRouter");
-app.use("/users", userRouter);
+// // user routes
+// const userRouter = require("./routes/userRouter");
+// app.use("/users", userRouter);
+//
+// // post routes
+// const postRouter = require("./routes/postRouter");
+// app.use("/posts", postRouter);
 
-// post routes
-const postRouter = require("./routes/postRouter");
-app.use("/posts", postRouter);
-
-//body parser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// user signup route
+const usersRoute = require("./routes/user.route.js");
+app.use("/users", usersRoute);
 
 //parse cookies
 app.use(cookieParser(process.env.COOKIE_SECRET));

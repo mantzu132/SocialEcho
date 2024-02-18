@@ -1,7 +1,4 @@
-import React from "react";
-import Form from "../form/Form";
 import Post from "../home/Post";
-
 
 const MainSection = ({ communityName }) => {
   return (
@@ -17,9 +14,7 @@ const MainSection = ({ communityName }) => {
           </div>
 
           <div className="mt-4">
-
             Recent post form this community
-
             {/* Add other community components */}
             <Post />
             <Post />
