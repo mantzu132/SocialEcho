@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LockKeyhole, Mail, Upload, User, X } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CLEAR_MESSAGE, signUpAction } from "../../state/auth/authSlice.ts";
+import { CLEAR_MESSAGES, signUpAction } from "../../state/auth/authSlice.ts";
 import { AppDispatch, RootState } from "../../state/store.ts";
 
 const SignUp = () => {
@@ -19,11 +19,6 @@ const SignUp = () => {
     (state: RootState) => state.auth?.signUpError,
   );
 
-  const successMessage = useSelector(
-    (state: RootState) => state.auth?.successMessage,
-  );
-
-  console.log(successMessage);
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
@@ -75,7 +70,7 @@ const SignUp = () => {
   }
 
   function handleClearError() {
-    dispatch(CLEAR_MESSAGE());
+    dispatch(CLEAR_MESSAGES());
   }
 
   return (
@@ -92,7 +87,7 @@ const SignUp = () => {
               role="alert"
               key={i}
             >
-              <span className="ml-2 block sm:inline">{`${err}!!!! `} </span>
+              <span className="ml-2">{`${err}!!!! `} </span>
               <button
                 className="ml-auto font-bold text-red-700"
                 onClick={handleClearError}

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { signUp } from "../../api/authAPI.ts";
+import { signIn, signUp } from "../../api/authAPI.ts";
 import { NavigateFunction } from "react-router-dom";
 
 interface SignUpActionParams {
@@ -27,23 +27,71 @@ export const signUpAction = createAsyncThunk<
     return rejectWithValue(error.response.data);
   }
 });
+
+interface SignInActionParams {
+  formData: FormData;
+  navigate: NavigateFunction;
+}
+export const signInAction = createAsyncThunk<
+  any,
+  SignInActionParams,
+  { rejectValue: string }
+>("auth/signIn", async ({ formData, navigate }, { rejectWithValue }) => {
+  try {
+    const response = await signIn(formData);
+    const { error } = response;
+
+    if (error) {
+      return rejectWithValue(error);
+    } else {
+      const { user, accessToken, refreshToken, accessTokenUpdatedAt } =
+        response.data;
+
+      const profile = {
+        user,
+        accessToken,
+        refreshToken,
+        accessTokenUpdatedAt,
+      };
+
+      localStorage.setItem("profile", JSON.stringify(profile));
+      navigate("/");
+      return profile;
+    }
+  } catch (error) {
+    // @ts-ignore
+    return rejectWithValue(error.response.data);
+  }
+});
+
 interface initialStateTypes {
   signInError: string | null;
   signUpError: string[];
   successMessage: string | null;
+  userData: {
+    user: string;
+    accessToken: string;
+    refreshToken: string;
+    accessTokenUpdatedAt: string;
+  } | null;
+  accessToken: string | null;
+  refreshToken: string | null;
 }
 
 const initialState: initialStateTypes = {
   signInError: null,
   signUpError: [],
   successMessage: null,
+  userData: null,
+  accessToken: null,
+  refreshToken: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    CLEAR_MESSAGE: (state) => {
+    CLEAR_MESSAGES: (state) => {
       state.successMessage = null;
       state.signInError = null;
       state.signUpError = [];
@@ -58,14 +106,23 @@ const authSlice = createSlice({
         state.successMessage = "Sign up successful";
       })
       .addCase(signUpAction.rejected, (state, action) => {
-        state.successMessage = null;
+        state.signInError = action.payload ? action.payload : null;
+      })
+      .addCase(signInAction.fulfilled, (state, action) => {
+        state.successMessage = "Successfully Logged In !";
         state.signInError = null;
-        // @ts-ignore
-        state.signUpError = action.payload ? action.payload : [];
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+        state.userData = action.payload.user;
+      })
+      .addCase(signInAction.rejected, (state, action) => {
+        state.successMessage = null;
+        state.signUpError = [];
+        state.signInError = action.payload ? action.payload : null;
       });
   },
 });
 
-export const { CLEAR_MESSAGE } = authSlice.actions;
+export const { CLEAR_MESSAGES } = authSlice.actions;
 
 export default authSlice.reducer;

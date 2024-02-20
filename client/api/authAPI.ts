@@ -15,3 +15,16 @@ export const signUp = async (formData: any) => {
     };
   }
 };
+
+export const signIn = async (formData: FormData) => {
+  try {
+    const res = await API.post("/users/signin", formData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return { error: null, data: res.data };
+  } catch (error: any) {
+    return { error: error.response?.data?.message, data: null };
+  }
+};
