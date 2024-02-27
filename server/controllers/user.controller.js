@@ -151,4 +151,53 @@ const signin = async (req, res, next) => {
   }
 };
 
-module.exports = { addUser, signin };
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    const existingToken = await Token.findOne({
+      refreshToken: { $eq: refreshToken },
+    });
+    if (!existingToken) {
+      return res.status(401).json({
+        message: "Invalid refresh token",
+      });
+    }
+    const existingUser = await User.findById(existingToken.user);
+    if (!existingUser) {
+      return res.status(401).json({
+        message: "Invalid refresh token",
+      });
+    }
+
+    const refreshTokenExpiresAt =
+      jwt.decode(existingToken.refreshToken).exp * 1000;
+    if (Date.now() >= refreshTokenExpiresAt) {
+      await existingToken.deleteOne();
+      return res.status(401).json({
+        message: "Expired refresh token",
+      });
+    }
+
+    const payload = {
+      id: existingUser._id,
+      email: existingUser.email,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.SECRET, {
+      expiresIn: "6h",
+    });
+
+    res.status(200).json({
+      accessToken,
+      refreshToken: existingToken.refreshToken,
+      accessTokenUpdatedAt: new Date().toLocaleString(),
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+module.exports = { addUser, signin, refreshToken };

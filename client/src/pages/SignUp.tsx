@@ -1,9 +1,9 @@
 import Logo from "../assets/SocialEcho.png";
 import { Link, useNavigate } from "react-router-dom";
 import { LockKeyhole, Mail, Upload, User, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CLEAR_MESSAGES, signUpAction } from "../../state/auth/authSlice.ts";
+import { clearMessages, signUpAction } from "../../state/auth/authSlice.ts";
 import { AppDispatch, RootState } from "../../state/store.ts";
 
 const SignUp = () => {
@@ -18,6 +18,14 @@ const SignUp = () => {
   const signUpError = useSelector(
     (state: RootState) => state.auth?.signUpError,
   );
+
+  const user = useSelector((state: RootState) => state.auth?.userData);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -70,7 +78,7 @@ const SignUp = () => {
   }
 
   function handleClearError() {
-    dispatch(CLEAR_MESSAGES());
+    dispatch(clearMessages());
   }
 
   return (

@@ -1,13 +1,13 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../state/store.ts";
+import MainSection from "../../components/MainSection.tsx";
 
 const HomePage = () => {
-  const successMessage = useSelector(
-    (state: RootState) => state.auth?.successMessage,
-  );
+  const userData = useSelector((state: RootState) => state.auth.userData);
+
   return (
     <div>
-      <div>HELLO WORLD and {successMessage}</div>
+      <MainSection userData={userData} />
     </div>
   );
 };

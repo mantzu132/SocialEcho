@@ -1,16 +1,24 @@
 import Logo from "../assets/SocialEcho.png";
 import { LockKeyhole, User, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../state/store.ts";
-import { CLEAR_MESSAGES, signInAction } from "../../state/auth/authSlice.ts";
+import { clearMessages, signInAction } from "../../state/auth/authSlice.ts";
 
 const SignIn = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const navigate = useNavigate();
+
+  const user = useSelector((state: RootState) => state.auth?.userData);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const dispatch = useDispatch<AppDispatch>();
   const successMessage = useSelector(
@@ -39,7 +47,7 @@ const SignIn = () => {
   }
 
   function handleClearMessages() {
-    dispatch(CLEAR_MESSAGES());
+    dispatch(clearMessages());
   }
 
   return (
